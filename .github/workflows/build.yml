@@ -93,14 +93,14 @@ jobs:
         mkdir -p $OUTPUT_DIR
         
         # Build the binary
-        go build -ldflags="-s -w" -o $OUTPUT_DIR/$BINARY_NAME ./
+        go build -ldflags="-s -w -X 'main.buildTime=$(date)' -extldflags '-static'" -o $OUTPUT_DIR/$BINARY_NAME ./
         
         # Create archive
-        cd dist
+        cd $OUTPUT_DIR
         if [ "${{ matrix.goos }}" = "windows" ]; then
-          zip -r colordna_${{ matrix.goos }}_${{ matrix.goarch }}.zip ${{ matrix.goos }}_${{ matrix.goarch }}/
+          zip -r colordna_${{ matrix.goos }}_${{ matrix.goarch }}.zip ./$BINARY_NAME
         else
-          tar -czf colordna_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz ${{ matrix.goos }}_${{ matrix.goarch }}/
+          tar -czf colordna_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz ./$BINARY_NAME
         fi
 
     - name: Upload build artifacts
@@ -108,4 +108,4 @@ jobs:
       with:
         name: colordna_${{ matrix.goos }}_${{ matrix.goarch }}
         path: |
-          dist/colordna_${{ matrix.goos }}_${{ matrix.goarch }}.*
+          dist/${{ matrix.goos }}_${{ matrix.goarch }}/colordna_${{ matrix.goos }}_${{ matrix.goarch }}.*
